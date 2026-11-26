@@ -1,6 +1,7 @@
 # Artfolio
 
 **Live: [myartfolio.art](https://myartfolio.art)**
+**See mine: [myartfolio.art/u/ninamclark](https://myartfolio.art/u/ninamclark)**
 
 Artfolio is a portfolio builder for artists. You make an account, drop in your photos, add a title and description for each piece, pick a layout and a color palette, and you get a link to share. Your page lives at `myartfolio.art/u/yourname`.
 
