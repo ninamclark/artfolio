@@ -1,0 +1,15 @@
+{
+  "name": "artfolio",
+  "version": "1.0.0",
+  "description": "Zero-dependency portfolio builder for artists: accounts, photo uploads, public portfolio pages.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/app.test.js",
+    "backup": "node scripts/backup.js"
+  },
+  "engines": {
+    "node": ">=22.5"
+  },
+  "license": "MIT"
+}

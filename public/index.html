@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Artfolio: a portfolio site in minutes</title>
+<meta name="description" content="Drop in photos of your work, add a few words, and get a beautiful portfolio site. No code needed.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- ============ landing + sign up ============ -->
+<section id="auth" hidden>
+  <div class="landing">
+    <div class="hero">
+      <p class="eyebrow">For painters, illustrators, photographers, makers</p>
+      <h1>Your work, online,<br>in about five minutes.</h1>
+      <p class="lede">Drop in your photos, add a few words, pick a look. Switch templates any time. No code, no design skills, nothing to set up.</p>
+    </div>
+
+    <ol class="steps" aria-label="How it works">
+      <li><strong>1. Drop in photos</strong><span>Drag them in. We resize them and keep them sharp.</span></li>
+      <li><strong>2. Add a few words</strong><span>A title and a note for each piece. Group pieces into collections.</span></li>
+      <li><strong>3. Pick your look</strong><span>Six layouts, four color palettes. Switch between them any time.</span></li>
+    </ol>
+
+    <form id="auth-form" class="card auth-card">
+      <h2 id="auth-title">Create your portfolio</h2>
+      <label><span id="username-label">Username <small>(your page will be at /u/username)</small></span>
+        <input name="username" autocomplete="username" required maxlength="120">
+      </label>
+      <label id="email-row">Email <small>(private, only used to reset your password)</small>
+        <input name="email" type="email" autocomplete="email" maxlength="120">
+      </label>
+      <label>Password <small>(10+ characters)</small>
+        <input name="password" type="password" autocomplete="current-password" required minlength="10">
+      </label>
+      <p id="auth-error" class="error" role="alert"></p>
+      <button class="primary" id="auth-submit">Sign up, it's free</button>
+      <p class="switch"><span id="auth-switch-text">Already have an account?</span> <a href="#" id="auth-switch">Log in</a></p>
+      <p class="switch" id="forgot-row" hidden><a href="#" id="forgot">Forgot your password?</a></p>
+    </form>
+
+    <form id="recover-form" class="card auth-card" hidden novalidate>
+      <h2>Reset your password</h2>
+      <div id="recover-step1">
+        <p class="hint">Enter the email address on your account. We'll send you a one-time code.</p>
+        <label>Email <input name="email" type="email" autocomplete="email" maxlength="120"></label>
+      </div>
+      <div id="recover-step2" hidden>
+        <p class="hint" id="recover-sent" role="status"></p>
+        <label>Code from the email <input name="code" autocomplete="one-time-code" spellcheck="false" placeholder="XXXX-XXXX" maxlength="20"></label>
+        <label>New password <small>(10+ characters)</small><input name="password" type="password" autocomplete="new-password" minlength="10"></label>
+      </div>
+      <p id="recover-error" class="error" role="alert"></p>
+      <button class="primary" id="recover-submit">Email me a code</button>
+      <p class="switch"><a href="#" id="recover-again" hidden>Send another code</a> <a href="#" id="recover-back">Back to log in</a></p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ dashboard ============ -->
+<section id="app" hidden>
+  <header class="bar">
+    <strong class="brand">Artfolio</strong>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" id="tab-works" aria-controls="panel-works" aria-selected="true">Works</button>
+      <button role="tab" id="tab-profile" aria-controls="panel-profile" aria-selected="false">Profile</button>
+      <button role="tab" id="tab-account" aria-controls="panel-account" aria-selected="false">Account</button>
+    </nav>
+    <span class="spacer"></span>
+    <label class="pub" title="Draft: only you can see your site. Published: anyone with the link can.">
+      <input type="checkbox" id="publish" role="switch">
+      <span class="pub-track"><span class="pub-knob"></span></span>
+      <span id="pub-label">Draft</span>
+    </label>
+    <a id="view-link" class="btn" target="_blank" rel="noopener">View site ↗</a>
+    <button id="copy-link" class="btn">Copy link</button>
+  </header>
+
+  <main class="wrap">
+    <!-- Works + live preview -->
+    <section id="panel-works" class="split" role="tabpanel" aria-labelledby="tab-works">
+      <div class="controls">
+        <div id="email-note" class="draft-note" hidden></div>
+        <div id="draft-note" class="draft-note" hidden>Your site is a <strong>draft</strong>, so only you can see it. <button type="button" id="draft-publish" class="link">Publish it</button> when you are ready to share the link.</div>
+        <div class="dial-block">
+          <div class="dial-head"><h2>Layout</h2><span id="layout-name" class="dial-name"></span></div>
+          <div id="layout-dial" class="dial" role="radiogroup" aria-label="Layout"></div>
+          <p id="layout-desc" class="hint"></p>
+        </div>
+        <div class="dial-block">
+          <div class="dial-head"><h2>Colors</h2><span id="color-name" class="dial-name"></span></div>
+          <div id="color-dial" class="dial" role="radiogroup" aria-label="Colors"></div>
+        </div>
+
+        <div id="drop" class="drop" tabindex="0" role="button" aria-label="Add photos">
+          <p><strong>Drop photos here</strong> or click to choose</p>
+          <small>JPG, PNG, WebP or GIF. Big photos are resized for you.</small>
+          <input id="file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
+        </div>
+
+        <div class="collections">
+          <strong>Collections</strong>
+          <span id="chips" class="chips"></span>
+          <form id="coll-form" class="inline-form">
+            <input id="coll-name" placeholder="New collection…" maxlength="40" aria-label="New collection name">
+            <button>Add</button>
+          </form>
+        </div>
+
+        <div id="works" class="grid" aria-label="Your artworks"></div>
+        <p id="empty" class="muted" hidden>Nothing here yet. Drop your first piece above and it appears on the right.</p>
+      </div>
+
+      <div class="live">
+        <div class="live-bar">
+          <span>Live preview</span>
+          <span class="spacer"></span>
+          <div class="seg" role="group" aria-label="Preview size">
+            <button type="button" id="v-desk" aria-pressed="true">Desktop</button>
+            <button type="button" id="v-phone" aria-pressed="false">Phone</button>
+          </div>
+          <a id="preview-open" target="_blank" rel="noopener">Open ↗</a>
+        </div>
+        <div class="live-stage"><div id="live-frame" class="live-frame"><iframe id="preview" title="Live preview of your portfolio"></iframe></div></div>
+      </div>
+    </section>
+
+    <!-- Profile -->
+    <section id="panel-profile" role="tabpanel" aria-labelledby="tab-profile" hidden>
+      <form id="profile-form" class="card narrow">
+        <h2>About you</h2>
+        <label>Name shown on your site <input name="displayName" maxlength="60"></label>
+        <label>Short bio <textarea name="bio" rows="4" maxlength="600"></textarea></label>
+        <h2>Links <small>(all optional)</small></h2>
+        <label>Website <input name="website" maxlength="200" placeholder="yourname.com" inputmode="url" autocomplete="url"></label>
+        <label>Instagram <input name="instagram" maxlength="40" placeholder="@yourhandle"></label>
+        <label>Contact email <small>(shown publicly as a "Contact" link)</small><input name="contactEmail" type="email" maxlength="120"></label>
+        <p id="profile-error" class="error" role="alert"></p>
+        <button class="primary">Save profile</button>
+      </form>
+    </section>
+
+    <!-- Account -->
+    <section id="panel-account" role="tabpanel" aria-labelledby="tab-account" hidden>
+      <form id="pw-form" class="card narrow">
+        <h2>Change password</h2>
+        <label>Current password <input name="current" type="password" autocomplete="current-password" required></label>
+        <label>New password <small>(10+ characters)</small><input name="next" type="password" autocomplete="new-password" required minlength="10"></label>
+        <p id="pw-error" class="error" role="alert"></p>
+        <button class="primary">Change password</button>
+        <p class="hint">This signs you out on your other devices and emails you a notice.</p>
+      </form>
+      <div class="card narrow" id="email-card">
+        <h2>Email</h2>
+        <p id="email-status" class="hint"></p>
+        <form id="verify-form" hidden>
+          <label>Confirmation code <input name="code" autocomplete="one-time-code" spellcheck="false" placeholder="XXXX-XXXX" maxlength="20"></label>
+          <p id="verify-error" class="error" role="alert"></p>
+          <p class="row"><button class="primary">Confirm email</button></p>
+          <p class="row"><button type="button" id="verify-resend">Send a new code</button> <button type="button" id="verify-cancel" class="link">Cancel this change</button></p>
+        </form>
+        <form id="email-form">
+          <label><span id="email-form-label">Change email</span> <input name="email" type="email" autocomplete="email" maxlength="120" required></label>
+          <label>Your password <input name="password" type="password" autocomplete="current-password" required></label>
+          <p id="email-error" class="error" role="alert"></p>
+          <button>Send confirmation code</button>
+        </form>
+      </div>
+      <div class="card narrow">
+        <h2>Storage</h2>
+        <div class="meter" role="progressbar" aria-label="Storage used"><i id="meter-fill"></i></div>
+        <p id="storage-text" class="hint"></p>
+      </div>
+      <div class="card narrow">
+        <h2>Devices and activity</h2>
+        <button id="revoke-others" type="button">Sign out all other devices</button>
+        <ul id="activity" class="activity" aria-label="Recent account activity"></ul>
+      </div>
+      <div class="card narrow">
+        <h2>Log out</h2>
+        <button id="logout">Log out</button>
+      </div>
+      <form id="del-form" class="card narrow danger-zone">
+        <h2>Delete account</h2>
+        <p class="hint">Permanently deletes your site, every image, and your account. This cannot be undone.</p>
+        <label>Type your password to confirm <input name="password" type="password" autocomplete="current-password" required></label>
+        <p id="del-error" class="error" role="alert"></p>
+        <button class="danger-btn">Delete everything</button>
+      </form>
+    </section>
+  </main>
+</section>
+
+<script src="/app.js"></script>
+</body>
+</html>
